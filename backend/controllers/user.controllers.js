@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/user.models.js";
 import Event from "../models/event.models.js";
 
+
 export const allEvents = async (req, res) => {
     const events = await Event.find({});
     if (!events) {
@@ -26,3 +27,5 @@ export const allEvents = async (req, res) => {
         data: events
     })
 }
+
+

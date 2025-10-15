@@ -2,7 +2,7 @@ import React from 'react'
 
 const Events = () => {
   return (
-    <div>Events</div>
+    <div>hello world this is the events route , this will be public</div>
   )
 }
 

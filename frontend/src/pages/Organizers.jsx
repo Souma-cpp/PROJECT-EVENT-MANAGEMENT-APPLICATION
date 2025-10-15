@@ -2,7 +2,7 @@ import React from 'react'
 
 const Organizers = () => {
   return (
-    <div>Organizers</div>
+    <div>hello world this is the events route , this will be protected</div>
   )
 }
 

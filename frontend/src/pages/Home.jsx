@@ -2,7 +2,7 @@ import React from 'react'
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <div>hello world this is the home route , this will be public</div>
   )
 }
 
