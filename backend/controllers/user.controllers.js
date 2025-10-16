@@ -47,7 +47,7 @@ export const me = async (req, res) => {
         console.log("Some error happened while fetching the user details", error);
         return res.json({
             status: 500,
-            message: "Something wrong happened",
+            message: "Something wrong happened in fetching the user details",
             data: null
         })
     }
