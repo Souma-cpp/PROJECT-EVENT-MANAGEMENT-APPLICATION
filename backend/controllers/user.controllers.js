@@ -28,4 +28,29 @@ export const allEvents = async (req, res) => {
     })
 }
 
+export const me = async (req, res) => {
+    try {
+        const user = await User.findById(req.auth.userId).select("-passwordHash -refreshTokens")
+        if (!user) {
+            return res.json({
+                status: 404,
+                message: "User is not found",
+                data: null
+            })
+        }
+        return res.json({
+            status: 200,
+            message: "User data has been fetched successfully",
+            data: user
+        })
+    } catch (error) {
+        console.log("Some error happened while fetching the user details", error);
+        return res.json({
+            status: 500,
+            message: "Something wrong happened",
+            data: null
+        })
+    }
+}
+
 

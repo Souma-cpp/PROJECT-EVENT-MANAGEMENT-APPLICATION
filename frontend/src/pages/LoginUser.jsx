@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
-import axios from 'axios';
-import React, { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from "react-router-dom"
+import axios from "axios";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/axios.js";
 
 const LoginUser = () => {
@@ -12,25 +12,20 @@ const LoginUser = () => {
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("user");
 
-    // your Axios instance
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         const data = { email, password, roleIntent: role };
 
         try {
-            const { accessToken, roles } = (await axios.post(
-                "http://localhost:3000/api/auth/login",
-                data,
-                { withCredentials: true }
-            )).data;
+            const { accessToken, roles } = (
+                await axios.post("http://localhost:3000/api/auth/login", data, {
+                    withCredentials: true,
+                })
+            ).data;
 
-            // store accessToken in localStorage
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("roles", JSON.stringify(roles));
-
-            // also set it in your Axios instance
             api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
             toast.success("Login successful!");
@@ -43,19 +38,26 @@ const LoginUser = () => {
         }
     };
 
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-neutral-900 to-black text-white px-4">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_30%,rgba(139,92,246,0.1),transparent_40%)] pointer-events-none"></div>
+
             <form
                 onSubmit={handleSubmit}
-                className="bg-neutral-900 border border-white/10 shadow-xl rounded-2xl p-12 w-full max-w-lg flex flex-col gap-8"
+                className="relative z-10 bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-10 w-full max-w-md flex flex-col gap-6 transition-all duration-300"
             >
-                <h2 className="text-3xl font-semibold text-center">Login</h2>
-                <h3 className="text-gray-400 text-lg text-center">Access your account</h3>
+                <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                    Welcome Back
+                </h2>
+                <p className="text-gray-400 text-center text-sm tracking-wide">
+                    Sign in to access your dashboard
+                </p>
 
                 {/* Email */}
-                <div className="flex items-center gap-6">
-                    <label htmlFor="email" className="text-xl w-36 text-gray-400 text-sm">Email</label>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="email" className="text-sm text-gray-400">
+                        Email
+                    </label>
                     <input
                         id="email"
                         type="email"
@@ -63,50 +65,60 @@ const LoginUser = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         required
-                        className="text-xl flex-1 p-4 rounded-md bg-black border border-gray-700 focus:border-purple-500 outline-none transition text-lg"
+                        className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition text-2xl"
                     />
                 </div>
 
                 {/* Password */}
-                <div className="flex items-center gap-6">
-                    <label htmlFor="password" className="text-xl w-36 text-gray-400 text-sm">Password</label>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="password" className="text-sm text-gray-400">
+                        Password
+                    </label>
                     <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter password"
+                        placeholder="Enter your password"
                         required
-                        className="text-xl flex-1 p-4 rounded-md bg-black border border-gray-700 focus:border-purple-500 outline-none transition text-lg"
+                        className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition text-2xl"
                     />
                 </div>
 
                 {/* Role */}
-                <div className="flex items-center gap-6">
-                    <label htmlFor="role" className="text-xl w-36 text-gray-400 text-sm">Role</label>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="role" className="text-sm text-gray-400">
+                        Role
+                    </label>
                     <input
                         id="role"
                         type="text"
                         value={role}
                         disabled
-                        className="text-xl flex-1 p-4 rounded-md bg-black border border-gray-700 text-gray-400 cursor-not-allowed text-lg"
+                        className="w-full p-3 rounded-lg bg-neutral-900 border border-gray-800 text-gray-500 cursor-not-allowed text-2xl"
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full cursor-pointer py-4 rounded-md font-semibold text-lg transition 
-            ${loading ? "bg-purple-900 text-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"}`}
+                    className={`cursor-pointer w-full py-3 rounded-lg font-semibold text-lg transition-all duration-200 
+          ${loading
+                            ? "bg-purple-900 text-gray-400 cursor-not-allowed"
+                            : "bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90"
+                        }`}
                 >
                     {loading ? "Logging in..." : "Login"}
                 </button>
 
-                <p className="text-gray-400 text-lg text-center mt-3">
-                    Don't have an account ?{" "}
-                    <a href="/register" className="text-xl text-purple-400 hover:text-purple-300">
+                <p className="text-gray-400 text-center text-sm mt-4">
+                    Don’t have an account?{" "}
+                    <span
+                        onClick={() => navigate("/register")}
+                        className="text-purple-400 hover:text-purple-300 cursor-pointer font-medium"
+                    >
                         Register
-                    </a>
+                    </span>
                 </p>
             </form>
         </div>

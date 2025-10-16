@@ -10,6 +10,6 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.post("/refresh", refresh);
 
-router.get("/dashboard", requireAuth, dashboard);
+router.get("/dashboard", requireAuth, dashboard); //keep the dashboard route in the users and make the corresponding frontend fetching changes
 
 export default router;
