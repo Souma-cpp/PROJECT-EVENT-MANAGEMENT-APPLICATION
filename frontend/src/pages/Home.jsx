@@ -80,7 +80,7 @@ const Home = () => {
             {/* Bigger, closer organizer/owner links */}
             <div className="flex items-center gap-5 text-lg">
               <a
-                href="/organizer-login"
+                href="/organizerLogin"
                 className="text-lg text-gray-300 hover:text-purple-400 transition-all duration-200 font-medium relative group"
               >
                 Login as Organizer
@@ -88,7 +88,7 @@ const Home = () => {
               </a>
 
               <a
-                href="/owner-login"
+                href="/ownerLogin"
                 className="text-lg text-gray-300 hover:text-pink-400 transition-all duration-200 font-medium relative group"
               >
                 Login as Venue Owner
@@ -131,7 +131,7 @@ const Home = () => {
 
         <button
           onClick={() => navigate(user ? "/dashboard" : "/register")}
-          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-purple-500/20 hover:scale-105 transition-all duration-200"
+          className="cursor-pointer px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-purple-500/20 hover:scale-105 transition-all duration-200"
         >
           {user ? "Go to Dashboard" : "Get Started"}
         </button>

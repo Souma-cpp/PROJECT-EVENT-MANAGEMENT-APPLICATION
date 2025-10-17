@@ -11,6 +11,11 @@ import Venues from "./pages/Venues.jsx"
 import ProtectedRoute from "./components/ProtectedRoute.jsx"
 import RegisterUser from './pages/RegisterUser.jsx';
 import LoginUser from './pages/LoginUser.jsx';
+import OrganizerLogin from './pages/OrganizerLogin.jsx';
+import OrganizerRegister from './pages/OrganizerRegister.jsx';
+import OwnerRegister from './pages/OwnerRegister.jsx';
+import OwnerLogin from './pages/OwnerLogin.jsx';
+import AuthRoute from './components/AuthRoute.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -18,8 +23,39 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/events' element={<Events />} />
-        <Route path='/register' element={<RegisterUser />} />
-        <Route path='/login' element={<LoginUser />} />
+
+
+        <Route path='/register' element={
+          <AuthRoute>
+            <RegisterUser />
+          </AuthRoute>
+        } />
+        <Route path='/login' element={
+          <AuthRoute>
+            <LoginUser />
+          </AuthRoute>
+        } />
+        <Route path='/organizerLogin' element={
+          <AuthRoute>
+            <OrganizerLogin />
+          </AuthRoute>
+        } />
+        <Route path='/organizerRegister' element={
+          <AuthRoute>
+            <OrganizerRegister />
+          </AuthRoute>
+        } />
+        <Route path='/ownerRegister' element={
+          <AuthRoute>
+            <OwnerRegister />
+          </AuthRoute>
+        } />
+        <Route path='/ownerLogin' element={
+          <AuthRoute>
+            <OwnerLogin />
+          </AuthRoute>
+        } />
+
         <Route path='/dashboard' element={
           <ProtectedRoute>
             <Dashboard />
