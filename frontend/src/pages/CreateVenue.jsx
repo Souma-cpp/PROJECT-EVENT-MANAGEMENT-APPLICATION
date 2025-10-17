@@ -42,6 +42,7 @@ const CreateVenue = () => {
     };
 
     useEffect(() => {
+        //console.log(localStorage.getItem("accessToken"));
         const storedRoles = localStorage.getItem("roles");
         const roles = storedRoles ? JSON.parse(storedRoles) : [];
         const role = roles[0];

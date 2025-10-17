@@ -37,7 +37,8 @@ const venueSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "User"
     },
-    premiumOwner: Boolean
+    premiumOwner: Boolean,
+    bookedDates: [Date]
 }, {
     timestamps: true
 });

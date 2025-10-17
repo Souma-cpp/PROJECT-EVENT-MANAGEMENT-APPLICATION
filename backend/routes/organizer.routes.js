@@ -10,7 +10,7 @@ route.get("/create", requireAuth, async (req, res) => {
     if (!venues) {
         return res.json({
             status: 404,
-            message: "No event could be found",
+            message: "No venues could be found",
             data: null
         })
     }
@@ -21,37 +21,108 @@ route.get("/create", requireAuth, async (req, res) => {
             data: []
         })
     }
-    const organizer = await User.findById(req.auth.userId).select("-password -refreshToken");
-    if (!organizer) {
+
+
+    const user = await User.findById(req.auth.userId).select("-password -refreshToken");
+    if (!user) {
         return res.json({
             status: 404,
             message: "Could not find the user",
             data: null
         })
     }
-    const isValid = organizer.roles[0] === "organizer";
-    if (isValid) {
-        return res.json({
-            status: 200,
-            message: "Organizer and venues fetched successfully",
-            data: {
-                venues: venues,
-                user: organizer
-            }
-        })
-    }
-
     return res.json({
-        status: 401,
-        message: "User found but he is not an Organizer",
-        data: null
+        status: 200,
+        message: "User and the venues are fetched successfully",
+        data: {
+            venues,
+            user
+        }
     })
 });
 
-route.post("/create", (req, res) => {
-    res.json({
-        message: "Post request arrived at the /api/organizers/create"
-    })
-})
+route.post("/create", requireAuth, async (req, res) => {
+    try {
+        const { name, description, venue, date, duration } = req.body;
+
+        // 1️⃣ Validate user
+        const user = await User.findById(req.auth.userId).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                status: 404,
+                message: "User not found",
+                data: null
+            });
+        }
+
+        // 2️⃣ Fetch venue
+        const desired_place = await Venue.findById(venue);
+        if (!desired_place) {
+            return res.status(404).json({
+                status: 404,
+                message: "Venue not found",
+                data: null
+            });
+        }
+
+        // 3️⃣ Prepare and normalize the date
+        const event_date = new Date(date);
+        event_date.setHours(0, 0, 0, 0); // Normalize to midnight for day-level comparison
+
+        // 4️⃣ Check if date is within available range
+        const isWithinRange =
+            desired_place.availableFrom <= event_date &&
+            event_date <= desired_place.availableTo;
+
+        if (!isWithinRange) {
+            return res.status(405).json({
+                status: 405,
+                message: "The venue is not available on that date (out of range).",
+                data: null
+            });
+        }
+
+        // 5️⃣ Check if the venue is already booked on that date
+        const isAlreadyBooked = desired_place.bookedDates.some(
+            (d) => new Date(d).getTime() === event_date.getTime()
+        );
+
+        if (isAlreadyBooked) {
+            return res.status(409).json({
+                status: 409,
+                message: "The venue is already booked on this date.",
+                data: null
+            });
+        }
+
+        // 6️⃣ Create the event
+        const event = await Event.create({
+            name,
+            description,
+            date: event_date,
+            duration,
+            location: desired_place._id,
+            createdBy: user._id
+        });
+
+        // 7️⃣ Mark that date as booked in the venue
+        desired_place.bookedDates.push(event_date);
+        await desired_place.save();
+
+        // 8️⃣ Return success
+        return res.status(201).json({
+            status: 201,
+            message: "Event created successfully and venue marked as booked.",
+            data: event
+        });
+    } catch (error) {
+        console.error("Error creating event:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+            error: error.message
+        });
+    }
+});
 
 export default route;
