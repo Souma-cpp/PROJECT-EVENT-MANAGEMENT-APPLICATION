@@ -5,6 +5,7 @@ import connectToDatabase from "./db/config.js";
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import organizerRouter from "./routes/organizer.routes.js"
+import ownerRouter from "./routes/owner.routes.js"
 import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
@@ -23,7 +24,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/organizers", organizerRouter);
-//app.use("/api/owner" , ownerRouter) ;
+app.use("/api/owners", ownerRouter);
 
 connectToDatabase().then(() => {
     app.listen(port, () => {

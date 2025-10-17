@@ -48,4 +48,10 @@ route.get("/create", requireAuth, async (req, res) => {
     })
 });
 
+route.post("/create", (req, res) => {
+    res.json({
+        message: "Post request arrived at the /api/organizers/create"
+    })
+})
+
 export default route;

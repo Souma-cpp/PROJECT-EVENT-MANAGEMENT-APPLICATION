@@ -33,6 +33,10 @@ const venueSchema = new mongoose.Schema({
         min: 0,
         max: 5
     },
+    owner: {
+        type: mongoose.Types.ObjectId,
+        ref: "User"
+    },
     premiumOwner: Boolean
 }, {
     timestamps: true

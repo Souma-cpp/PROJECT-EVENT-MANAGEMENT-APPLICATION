@@ -17,6 +17,7 @@ import OwnerRegister from './pages/OwnerRegister.jsx';
 import OwnerLogin from './pages/OwnerLogin.jsx';
 import AuthRoute from './components/AuthRoute.jsx';
 import CreateEvent from "./pages/CreateEvent.jsx"
+import CreateVenue from './pages/CreateVenue.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -64,6 +65,12 @@ createRoot(document.getElementById('root')).render(
         } />
         <Route path='/organizers/' element={<Organizers />} />
         <Route path='/organizers/create' element={<CreateEvent />} />
+
+
+
+        <Route path='/owners' element={<Venues />} />
+        <Route path='/owners/create' element={<CreateVenue />} />
+
 
         <Route path='/venues' element={<Venues />} />
         <Route path='/dashboard' element={
