@@ -1,6 +1,9 @@
 // controllers/auth.js
 import User from "../models/user.models.js";
 import { hashPassword, comparePassword, signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/auth.utils.js";
+import dotenv from "dotenv";
+dotenv.config();
+import { v2 as cloudinary } from 'cloudinary'
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -13,6 +16,9 @@ const COOKIE_OPTIONS = {
 // REGISTER
 export const register = async (req, res) => {
     const { name, email, password, roleIntent } = req.body;
+    const file = req.file;
+    //console.log(req.body)
+    //console.log("The avatar body", avatar);
 
     if (!name || !email || !password) return res.status(400).json({ msg: "Missing fields" });
     if (!["user", "organizer", "owner"].includes(roleIntent)) return res.status(400).json({ msg: "Invalid role" });
@@ -21,7 +27,31 @@ export const register = async (req, res) => {
     if (existing) return res.status(409).json({ msg: "Email already in use" });
 
     const passwordHash = await hashPassword(password);
-    const user = await User.create({ name, email, passwordHash, roles: [roleIntent] });
+
+    let avatarUrl = null;
+    if (file) {
+        avatarUrl = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    resource_type: "image",
+                    folder: "users/avatars"
+                },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result.secure_url);
+                }
+            );
+            stream.end(file.buffer);
+        });
+    }
+
+    const user = await User.create({
+        name,
+        email,
+        passwordHash,
+        roles: [roleIntent],
+        avatar: avatarUrl
+    });
 
     res.status(201).json({ msg: "Registered successfully", userId: user._id });
 };

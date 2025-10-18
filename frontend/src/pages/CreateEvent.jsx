@@ -4,185 +4,213 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "../date.css"
+import { toast } from "react-hot-toast";
 
 const CreateEvent = () => {
     const navigate = useNavigate();
     const [venues, setVenues] = useState([]);
-    const [user, setUser] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // form fields
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [venue, setVenue] = useState("");
-    const [date, setDate] = useState(null);
-    const [duration, setDuration] = useState(1);
+    const [form, setForm] = useState({
+        name: "",
+        description: "",
+        venue: "",
+        date: null,
+        duration: 1,
+        thumbnail: null,
+    });
 
-    const fetchInformation = async () => {
-        try {
-            const token = localStorage.getItem("accessToken");
-            console.log(token);
-            const response = await axios.get("http://localhost:3000/api/organizers/create", {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
-            });
-            console.log("the type is :", typeof (response.data.data.venues));
-            setVenues(response.data.data.venues);
-            setUser(response.data.data.user.name);
-        } catch (error) {
-            console.error("Error fetching organizer info:", error.response?.data || error.message);
-        }
-    };
+    const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
     useEffect(() => {
-        const storedRoles = localStorage.getItem("roles");
-        const roles = storedRoles ? JSON.parse(storedRoles) : [];
-        const role = roles[0];
+        const fetchInfo = async () => {
+            try {
+                const token = localStorage.getItem("accessToken");
+                const response = await axios.get(
+                    "http://localhost:3000/api/organizers/create",
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                    }
+                );
+                setVenues(response.data.data.venues);
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
-        if (role !== "organizer") {
+        const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+        if (roles[0] !== "organizer") {
             navigate("/");
             return;
         }
-        fetchInformation();
+
+        fetchInfo();
     }, []);
+
+    const handleChange = (e) => {
+        const { name, value, files } = e.target;
+        if (name === "thumbnail") {
+            setForm({ ...form, thumbnail: files[0] });
+            setThumbnailPreview(URL.createObjectURL(files[0]));
+        } else {
+            setForm({ ...form, [name]: value });
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        const form = {
-            name,
-            description,
-            venue,
-            date: date ? date.toISOString() : null,
-            duration,
-        };
-
         try {
             const token = localStorage.getItem("accessToken");
-            const res = await axios.post("http://localhost:3000/api/organizers/create", form, {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
+            const formData = new FormData();
+            Object.keys(form).forEach((key) => {
+                if (form[key]) formData.append(key, form[key]);
             });
-            console.log(res.data)
+
+            await axios.post(
+                "http://localhost:3000/api/organizers/create",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            toast.success("Event created successfully!");
             navigate("/dashboard");
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            setError("Failed to create event");
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.message || "Failed to create event");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-neutral-900 to-black text-white px-4 relative">
-            {/* Background radial gradient */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_30%,rgba(147,51,234,0.15),transparent_50%)] pointer-events-none"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-neutral-900 to-black text-white px-4">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_70%_20%,rgba(168,85,247,0.1),transparent_40%)] pointer-events-none"></div>
 
             <form
                 onSubmit={handleSubmit}
-                className="relative z-10 bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-6 sm:p-8 w-[90%] max-w-3xl flex flex-col gap-5"
+                className="relative z-10 bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-6 sm:p-8 md:p-10 w-full max-w-3xl flex flex-col gap-5"
             >
-                <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                    Create an Event
+                <h2 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                    Create Event
                 </h2>
 
-                {/* Event Name */}
-                <div className="flex flex-col gap-2 w-full sm:w-[90%] mx-auto">
-                    <label htmlFor="name" className="text-sm text-gray-400">
-                        Event Name
-                    </label>
-                    <input
-                        id="name"
-                        name="name"
-                        value={name}
-                        placeholder="Enter event name"
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="w-full p-3 rounded-xl bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition text-base"
-                    />
+                <p className="text-gray-400 text-center text-sm md:text-base tracking-wide">
+                    Organize your event with ease
+                </p>
+
+                {/* Name + Venue row */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-sm text-gray-400">Event Name</label>
+                        <input
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            placeholder="Enter event name"
+                            required
+                            className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition"
+                        />
+                    </div>
+
+                    <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-sm text-gray-400">Venue</label>
+                        <select
+                            name="venue"
+                            value={form.venue}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition"
+                        >
+                            <option value="">Select venue</option>
+                            {venues.map((v) => (
+                                <option key={v._id} value={v._id}>
+                                    {v.name} – {v.location || "Unknown"}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Description */}
-                <div className="flex flex-col gap-2 w-full sm:w-[90%] mx-auto">
-                    <label htmlFor="description" className="text-sm text-gray-400">
-                        Description
-                    </label>
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-400">Description</label>
                     <textarea
-                        id="description"
                         name="description"
-                        value={description}
-                        placeholder="Write a short event description"
-                        onChange={(e) => setDescription(e.target.value)}
-                        required
+                        value={form.description}
+                        onChange={handleChange}
+                        placeholder="Short description"
                         rows="2"
-                        className="w-full p-3 rounded-xl bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition resize-none text-base"
-                    />
-                </div>
-
-                {/* Venue */}
-                <div className="flex flex-col gap-2 w-full sm:w-[90%] mx-auto">
-                    <label htmlFor="venue" className="text-sm text-gray-400">
-                        Select Venue
-                    </label>
-                    <select
-                        id="venue"
-                        value={venue}
-                        onChange={(e) => setVenue(e.target.value)}
                         required
-                        className="w-full p-3 rounded-xl bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition text-base"
-                    >
-                        <option value="">Choose your venue</option>
-                        {venues.map((v) => (
-                            <option key={v._id} value={v._id}>
-                                {v.name} – {v.location || "Unknown Location"}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Date Picker */}
-                <div className="flex flex-col gap-2 w-full sm:w-[90%] mx-auto">
-                    <label htmlFor="date" className="text-sm text-gray-400">
-                        Event Date
-                    </label>
-                    <DatePicker
-                        selected={date}
-                        onChange={(date) => setDate(date)}
-                        placeholderText="Select event date"
-                        className="w-full p-3 rounded-xl bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition cursor-pointer text-base"
-                        dateFormat="dd MMM yyyy"
+                        className="text-xl w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition resize-none"
                     />
                 </div>
 
-                {/* Duration */}
-                <div className="flex flex-col gap-2 w-full sm:w-[90%] mx-auto">
-                    <label htmlFor="duration" className="text-sm text-gray-400">
-                        Duration (hours)
-                    </label>
+                {/* Date + Duration row */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-sm text-gray-400">Event Date</label>
+                        <DatePicker
+                            selected={form.date}
+                            onChange={(date) => setForm({ ...form, date })}
+                            placeholderText="Select date"
+                            className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition cursor-pointer"
+                            dateFormat="dd MMM yyyy"
+                        />
+                    </div>
+
+                    <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-sm text-gray-400">Duration (hours)</label>
+                        <input
+                            type="number"
+                            min="1"
+                            name="duration"
+                            value={form.duration}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-3 rounded-lg bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition"
+                        />
+                    </div>
+                </div>
+
+                {/* Thumbnail Upload */}
+                {/* Thumbnail Upload */}
+                {/* Thumbnail Upload with preview next to input */}
+                <div className="flex items-center gap-4">
                     <input
-                        id="duration"
-                        type="number"
-                        min="1"
-                        name="duration"
-                        value={duration}
-                        placeholder="Duration in hours"
-                        onChange={(e) => setDuration(e.target.value)}
-                        required
-                        className="w-full p-3 rounded-xl bg-neutral-950 border border-gray-700 focus:border-purple-500 outline-none text-white transition text-base"
+                        type="file"
+                        accept="image/*"
+                        name="thumbnail"
+                        onChange={handleChange}
+                        className="flex-1 p-3 rounded-lg bg-neutral-950 border border-gray-700 text-white cursor-pointer"
                     />
+
+                    {thumbnailPreview && (
+                        <div className="w-24 h-24 rounded-lg border border-gray-600 overflow-hidden flex-shrink-0">
+                            <img
+                                src={thumbnailPreview}
+                                alt="preview"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Submit */}
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-2 sm:w-[90%] mx-auto  mt-2 rounded-xl font-semibold text-lg transition-all duration-200 
-        ${loading
-                            ? "bg-purple-900 text-gray-400 cursor-not-allowed"
-                            : "bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90"
+                    className={`w-full py-3 md:py-4 rounded-lg font-semibold text-lg transition-all duration-200 ${loading
+                        ? "bg-purple-900 text-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90"
                         }`}
                 >
                     {loading ? "Creating Event..." : "Create Event"}
@@ -193,9 +221,6 @@ const CreateEvent = () => {
                 )}
             </form>
         </div>
-
-
-
     );
 };
 

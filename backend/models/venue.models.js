@@ -38,7 +38,8 @@ const venueSchema = new mongoose.Schema({
         ref: "User"
     },
     premiumOwner: Boolean,
-    bookedDates: [Date]
+    bookedDates: [Date],
+    images: [{ type: String, trim: true }]
 }, {
     timestamps: true
 });

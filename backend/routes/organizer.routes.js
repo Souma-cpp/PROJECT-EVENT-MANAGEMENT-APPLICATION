@@ -4,6 +4,9 @@ import User from "../models/user.models.js";
 import Event from "../models/event.models.js";
 import Venue from "../models/venue.models.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.js";
+import { v2 as cloudinary } from 'cloudinary'
+
 
 route.get("/create", requireAuth, async (req, res) => {
     const venues = await Venue.find({});
@@ -41,9 +44,10 @@ route.get("/create", requireAuth, async (req, res) => {
     })
 });
 
-route.post("/create", requireAuth, async (req, res) => {
+route.post("/create", requireAuth, upload.single("thumbnail"), async (req, res) => {
     try {
         const { name, description, venue, date, duration } = req.body;
+        const file = req.file;
 
         // 1️⃣ Validate user
         const user = await User.findById(req.auth.userId).select("-password");
@@ -95,6 +99,23 @@ route.post("/create", requireAuth, async (req, res) => {
             });
         }
 
+        let thumbnailUrl = null;
+        if (file) {
+            thumbnailUrl = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        resource_type: "image",
+                        folder: "events/thumbnails"
+                    },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result.secure_url);
+                    }
+                );
+                stream.end(file.buffer);
+            });
+        }
+
         // 6️⃣ Create the event
         const event = await Event.create({
             name,
@@ -102,7 +123,8 @@ route.post("/create", requireAuth, async (req, res) => {
             date: event_date,
             duration,
             location: desired_place._id,
-            createdBy: user._id
+            createdBy: user._id,
+            thumbnail: thumbnailUrl
         });
 
         // 7️⃣ Mark that date as booked in the venue

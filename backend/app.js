@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.routes.js";
 import organizerRouter from "./routes/organizer.routes.js"
 import ownerRouter from "./routes/owner.routes.js"
 import cookieParser from "cookie-parser";
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(cookieParser());
+
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);

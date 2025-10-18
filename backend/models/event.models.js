@@ -36,7 +36,8 @@ const eventSchema = new mongoose.Schema({
         type: Number,
         min: 0,
         max: 5
-    }
+    },
+    thumbnail: { type: String, trim: true }
 }, {
     timestamps: true
 });

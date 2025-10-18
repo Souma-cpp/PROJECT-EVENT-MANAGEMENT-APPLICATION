@@ -11,6 +11,7 @@ const Dashboard = () => {
     const [userData, setUserData] = useState(null);
     const [isloggingOut, setisLoggingOut] = useState(false);
     const [loggedOut, setLoggedOut] = useState(false);
+    const [profileImage, setProfileImage] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
@@ -24,6 +25,7 @@ const Dashboard = () => {
             try {
                 const res = await api.get("/auth/dashboard");
                 setUserData(res.data);
+                setProfileImage(res.data.avatar)
             } catch (err) {
                 console.error(err);
                 toast.error("Session expired. Please login again.");
@@ -76,12 +78,21 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
             {userData ? (
-                <div className="bg-neutral-900 p-6 rounded-2xl shadow-lg">
-                    <h2 className="text-xl font-semibold mb-4">Welcome, {userData.name}</h2>
-                    <p className="text-gray-400 mb-2">Email: {userData.email}</p>
-                    <p className="text-gray-400 mb-2">Roles: {userData.roles.join(", ")}</p>
-                    <p className="text-gray-400 mb-2">Wallet: ${userData.walletAmount || 0}</p>
-                    <p className="text-gray-400 mb-2">Reputation: {userData.reputation || "N/A"}</p>
+                <div className="flex justify-between items-center bg-neutral-900 p-6 rounded-2xl shadow-lg">
+                    <div className="w-1/2">
+                        <h2 className="text-xl font-semibold mb-4">Welcome, {userData.name}</h2>
+                        <p className="text-gray-400 mb-2">Email: {userData.email}</p>
+                        <p className="text-gray-400 mb-2">Roles: {userData.roles.join(", ")}</p>
+                        <p className="text-gray-400 mb-2">Wallet: ${userData.walletAmount || 0}</p>
+                        <p className="text-gray-400 mb-2">Reputation: {userData.reputation || "N/A"}</p>
+                    </div>
+                    <div className="">
+                        <img
+                            src={profileImage}
+                            alt="user's profile picture"
+                            onClick={() => navigate()}
+                            className="cursor-pointer absolute top-30 right-20 h-10 w-10 rounded-full" />
+                    </div>
                 </div>
             ) : (
                 <p className="text-gray-400">No user data available</p>
