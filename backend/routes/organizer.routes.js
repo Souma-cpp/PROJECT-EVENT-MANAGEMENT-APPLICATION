@@ -147,4 +147,21 @@ route.post("/create", requireAuth, upload.single("thumbnail"), async (req, res) 
     }
 });
 
+route.get("/events", async (req, res) => {
+    const events = await Event.find({});
+    if (!events) {
+        return res.json({
+            status: 404,
+            message: "No events could be fetched",
+            data: []
+        })
+    }
+
+    return res.json({
+        status: 200,
+        message: "Events fetched successfully",
+        data: events
+    })
+})
+
 export default route;
