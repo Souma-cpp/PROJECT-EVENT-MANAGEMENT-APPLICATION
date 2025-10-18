@@ -53,7 +53,11 @@ export const register = async (req, res) => {
         avatar: avatarUrl
     });
 
-    res.status(201).json({ msg: "Registered successfully", userId: user._id });
+    res.status(201).json({
+        status: 201,
+        msg: "Registered successfully",
+        userId: user._id
+    });
 };
 
 // LOGIN
@@ -94,7 +98,9 @@ export const login = async (req, res) => {
 
     } catch (err) {
         console.error("Login error:", err);
-        res.status(500).json({ msg: "Server error during login" });
+        res.status(500).json({ 
+            msg: "Server error during login" 
+        });
     }
 };
 
