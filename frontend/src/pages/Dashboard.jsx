@@ -108,7 +108,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             ) : (
-                <p className="text-gray-400">No user data available</p>
+                <p className="text-gray-400">No user data available right now</p>
             )}
 
             {/* <div>
