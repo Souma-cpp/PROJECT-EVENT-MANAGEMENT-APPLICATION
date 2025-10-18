@@ -215,7 +215,7 @@ const CreateVenue = () => {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-400 text-center mt-4">Image previews will appear here</p>
+                        <p className="text-gray-500 text-center mt-4">Image previews will appear here</p>
                     )}
                 </div>
             </form>
