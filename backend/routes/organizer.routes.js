@@ -49,6 +49,15 @@ route.post("/create", requireAuth, upload.single("thumbnail"), async (req, res) 
         const { name, description, venue, date, duration } = req.body;
         const file = req.file;
 
+        if (!file) {
+            console.log("No files detected");
+            return res.status(404).json({
+                status: 404,
+                message: "files not found",
+                data: null
+            });
+        }
+
         // 1️⃣ Validate user
         const user = await User.findById(req.auth.userId).select("-password");
         if (!user) {
